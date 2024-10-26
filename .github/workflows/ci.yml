@@ -58,5 +58,4 @@ jobs:
         with:
           working-directory: ./frontend
           run: npm run test:e2e
-          wait-on: "http://localhost:4173"
           browser: chrome

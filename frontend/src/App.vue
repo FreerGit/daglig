@@ -1,63 +1,58 @@
 <script setup>
-import { ref } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
-
 </script>
 
 <script>
-import { CalendarHeatmap } from "vue3-calendar-heatmap";
+import { CalendarHeatmap } from 'vue3-calendar-heatmap'
 
 export default {
-  name: "GitHubHeatmap",
+  name: 'GitHubHeatmap',
   components: {
     CalendarHeatmap,
   },
   data() {
     return {
       heatmapData: [
-        { date: "2018-9-21", count: 6 },
-        { date: "2018-9-22", count: 6 },
+        { date: '2018-9-21', count: 6 },
+        { date: '2018-9-22', count: 6 },
       ],
-      username: "mrbigoudi",
-    };
+      username: 'mrbigoudi',
+    }
   },
-};
+}
 </script>
 
-
 <template>
-
   <div class="heatmap">
-      <h1>122432</h1>
-      <CalendarHeatmap
-        :values="[
-          { date: '2018-9-21', count: 6 },
-          { date: '2018-9-22', count: 6 },
-        ]"
-        :end-date="'2018-12-22'"
-        :dark-mode="true"
-        tooltip-unit="actions"
-      />
-      <h1>122432</h1>
+    <h1>122432</h1>
+    <CalendarHeatmap
+      :values="[
+        { date: '2018-9-21', count: 6 },
+        { date: '2018-9-22', count: 6 },
+      ]"
+      :end-date="'2018-12-22'"
+      :dark-mode="true"
+      tooltip-unit="actions"
+    />
 
-    </div>
+    <h1>122432</h1>
+  </div>
 
   <header>
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-    
+
     <div class="wrapper">
       <HelloWorld msg="You did it!" />
-      
+
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
       </nav>
     </div>
   </header>
-  
-  <RouterView />
 
+  <RouterView />
 </template>
 
 <style scoped>
@@ -67,7 +62,7 @@ header {
 }
 
 .logo {
-  display: block; 
+  display: block;
   margin: 0 auto 2rem;
 }
 

@@ -1,10 +1,6 @@
 name: CI
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+on: [push]
 
 jobs:
   backend-tests:
@@ -22,11 +18,15 @@ jobs:
         run: |
           opam install dune --yes
           opam install . --deps-only --yes
+          eval $(opam env)
         working-directory: ./backend
 
       - name: Run backend tests
-        run: dune runtest
+        run: |
+          eval $(opam env)
+          dune runtest
         working-directory: ./backend
+
   frontend-tests:
     runs-on: ubuntu-latest
 

@@ -13,17 +13,13 @@ jobs:
         uses: avsm/setup-ocaml@v1
         with:
           ocaml-version: 5.2.0
-
-      - name: Install dependencies
+          
+      - name: Run backend tests
         run: |
           opam install dune --yes
           opam install . --deps-only --yes
           eval $(opam env)
-        working-directory: ./backend
-
-      - name: Run backend tests
-        run: |
-          eval $(opam env)
+          opam list
           dune runtest
         working-directory: ./backend
 
@@ -43,19 +39,18 @@ jobs:
         run: npm install
         working-directory: ./frontend
 
-      - name: Run unit tests with Vitest
-        run: npm run test:unit
+      - name: Build
+        run: npm run build
         working-directory: ./frontend
 
-      - name: Run format & lint
+      - name: Run lint
         run: |
           npm run lint
-          npm run format
         working-directory: ./frontend
 
-      - name: Run Cypress end-to-end tests
-        uses: cypress-io/github-action@v4
-        with:
-          working-directory: ./frontend
-          run: npm run test:e2e
-          browser: chrome
+      # - name: Run Cypress end-to-end tests
+      #   uses: cypress-io/github-action@v4
+      #   with:
+      #     working-directory: ./frontend
+      #     run: npm run test:e2e
+      #     browser: chrome

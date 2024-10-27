@@ -7,7 +7,7 @@ const RedirectButton = () => {
   const router = useRouter();
 
   const handleRedirect = () => {
-    router.push("/login");
+    router.push("/auth/signin");
   };
 
   return (

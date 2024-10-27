@@ -2,6 +2,7 @@
 **Next steps:** 
 
 ### Frontend
+- Setup cypress with auth, github token.
 
 ### Backend
 - Setup https server httpun/eio

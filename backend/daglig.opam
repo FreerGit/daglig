@@ -15,6 +15,13 @@ depends: [
   "ppx_jane"
   "ppx_expect"
   "ppx_assert"
+  "pg_query" {= "0.9.6"}
+  "eio"
+  "caqti"
+  "caqti-eio"
+  "caqti-driver-postgresql"
+  "ppx_rapper_eio"
+  "alcotest"
   "odoc" {with-doc}
 ]
 build: [
@@ -32,3 +39,8 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/username/reponame.git"
+
+pin-depends: [
+  ["ppx_rapper.dev" "git+https://github.com/FreerGit/ppx_rapper"]
+  ["ppx_rapper_eio.dev" "git+https://github.com/FreerGit/ppx_rapper"]
+]

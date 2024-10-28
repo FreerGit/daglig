@@ -1,2 +1,11 @@
-(test
- (name test_daglig))
+(tests
+ (names db_test simple_test)
+ (libraries
+  alcotest
+  eio.unix
+  eio_main
+  caqti-eio.unix
+  caqti-driver-postgresql
+  ppx_rapper_eio)
+ (preprocess
+  (pps ppx_rapper)))

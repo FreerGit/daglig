@@ -1,0 +1,5 @@
+
+pin-depends: [
+  ["ppx_rapper.dev" "git+https://github.com/FreerGit/ppx_rapper"]
+  ["ppx_rapper_eio.dev" "git+https://github.com/FreerGit/ppx_rapper"]
+]

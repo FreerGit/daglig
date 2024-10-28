@@ -19,7 +19,21 @@
  (name daglig)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml dune ppx_jane ppx_expect ppx_assert)
+ (depends
+  ocaml
+  dune
+  ppx_jane
+  ppx_expect
+  ppx_assert
+  (pg_query
+   (= 0.9.6))
+  eio
+  caqti
+  caqti-eio
+  caqti-driver-postgresql
+  ; ppx_rapper
+  ppx_rapper_eio
+  alcotest)
  (tags
   (topics "to describe" your project)))
 

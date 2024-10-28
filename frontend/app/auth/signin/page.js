@@ -1,25 +1,20 @@
-"use client";
+import OAuthButton from "@/app/components/OAuthButton";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
-import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+export default async function LoginPage() {
+  const session = await getServerSession();
 
-export default function LoginPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    console.log("signin: ", status);
-    if (status === "authenticated") {
-      router.push("/abc");
-    }
-  }, [status, router]);
+  if (session) {
+    redirect("/abc");
+    return null;
+  }
 
   return (
     <div>
       <h1>Login Page</h1>
-      <button onClick={() => signIn("github")}>Login with GitHub</button>
-      <button onClick={() => signIn("google")}>Login with Google</button>
+      <OAuthButton provider="github" />
+      <OAuthButton provider="google" />
     </div>
   );
 }

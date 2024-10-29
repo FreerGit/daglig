@@ -1,4 +1,4 @@
 (executable
  (public_name daglig)
  (name main)
- (libraries daglig))
+ (libraries core eio eio_main lib))

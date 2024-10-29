@@ -1,5 +1,12 @@
 (library
- (name daglig)
+ (name lib)
  (inline_tests)
+ (libraries
+  core
+  eio.unix
+  eio_main
+  caqti-eio.unix
+  caqti-driver-postgresql
+  ppx_rapper_eio)
  (preprocess
-  (pps ppx_jane ppx_expect ppx_assert)))
+  (pps ppx_jane ppx_expect ppx_assert ppx_rapper ppx_sexp_message)))

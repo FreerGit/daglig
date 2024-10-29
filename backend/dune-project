@@ -22,17 +22,21 @@
  (depends
   ocaml
   dune
+  core
   ppx_jane
   ppx_expect
   ppx_assert
+  ppx_string
+  ppx_here
+  ppx_custom_printf
+  ppx_sexp_message
   (pg_query
    (= 0.9.6))
   eio
-  eio-main
+  eio_main
   caqti
   caqti-eio
   caqti-driver-postgresql
-  ; ppx_rapper
   ppx_rapper_eio
   alcotest)
  (tags

@@ -28,6 +28,7 @@
   (pg_query
    (= 0.9.6))
   eio
+  eio-main
   caqti
   caqti-eio
   caqti-driver-postgresql

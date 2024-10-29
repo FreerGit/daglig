@@ -14,6 +14,17 @@ jobs:
         with:
           ocaml-version: 5.2.0
           
+
+      - name: Build postgres image
+        run: |
+          docker build -t dev-pg . 
+        working-directory: ./backend
+
+      - name: Start postgres
+        run: |
+          docker run -p 5432:5432 -d dev-pg
+        working-directory: ./backend
+
       - name: Run backend tests
         run: |
           opam install dune --yes

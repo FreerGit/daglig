@@ -1,5 +1,3 @@
-(* open Eio.Std *)
-
 module type DB_TRANSACTION = sig
   val name : string
   val run : (module Caqti_eio.CONNECTION) -> unit
@@ -14,13 +12,12 @@ let run_test ~stdenv ~uri (module Test : DB_TRANSACTION) =
     Printf.printf "Connection error in test '%s': %s\n" Test.name (Caqti_error.show err);
     false
   | Ok connection ->
+    (* Run a test case through a transaction and roll it back at the end
+       this gives the nice property of the test cases not mutating the db*)
     (try
-       (* Start transaction *)
        let (module Conn : Caqti_eio.CONNECTION) = connection in
        Conn.start () |> Result.get_ok;
-       (* Run the test *)
        Test.run (module Conn);
-       (* Always rollback, even if test succeeds *)
        Conn.rollback () |> Result.get_ok;
        Printf.printf "Test '%s' completed successfully\n" Test.name;
        true
@@ -30,7 +27,6 @@ let run_test ~stdenv ~uri (module Test : DB_TRANSACTION) =
          "Test '%s' failed with exception: %s\n"
          Test.name
          (Printexc.to_string exn);
-       (* Ensure rollback happens even on exception *)
        (try
           let (module Conn : Caqti_eio.CONNECTION) = connection in
           Conn.rollback () |> Result.get_ok
@@ -85,7 +81,6 @@ module CreateTable = struct
 
   let run (module Conn : Caqti_eio.CONNECTION) =
     let created = create_users_table (module Conn) in
-    (* throws? *)
     Result.get_ok created;
     let user = { email = "email.."; username = "name..." } in
     let i = insert_user user (module Conn) in
@@ -106,25 +101,7 @@ let run_all_tests ~stdenv ~uri =
   passed = total
 ;;
 
-(* ENV POSTGRES_DB = dev ENV POSTGRES_USER = dev ENV POSTGRES_PASSWORD = dev *)
-
-(* let create_uri () =
-  let dev = "dev" in
-  let host = "localhost" in
-  (* Adjust this if needed *)
-  let port = 5432 in
-  (* Default PostgreSQL port *)
-  let uri_str = Printf.sprintf "postgresql://%s:%s@%s:%d/%s" dev dev host port dev in
-  let u = Uri.of_string uri_str in
-  print_endline "HERE";
-  print_endline @@ Uri.to_string u;
-  u
-;; *)
-
-(* Table creation query as a string *)
-
 let test_db () =
-  (* let uri = create_uri () in *)
   let uri = Uri.of_string "postgresql://dev:dev@localhost:5432/dev" in
   Eio_main.run
   @@ fun stdenv ->

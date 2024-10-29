@@ -3,10 +3,12 @@
  (inline_tests)
  (libraries
   core
+  core_unix.time_float_unix
   eio.unix
   eio_main
+  caqti
   caqti-eio.unix
   caqti-driver-postgresql
   ppx_rapper_eio)
  (preprocess
-  (pps ppx_jane ppx_expect ppx_assert ppx_rapper ppx_sexp_message)))
+  (pps ppx_jane ppx_expect ppx_assert ppx_rapper ppx_sexp_message ppx_let)))

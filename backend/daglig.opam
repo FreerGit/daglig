@@ -13,11 +13,13 @@ depends: [
   "ocaml"
   "dune" {>= "3.16"}
   "core"
+  "core_unix"
   "ppx_jane"
   "ppx_expect"
   "ppx_assert"
   "ppx_string"
   "ppx_here"
+  "ppx_let"
   "ppx_custom_printf"
   "ppx_sexp_message"
   "pg_query" {= "0.9.6"}

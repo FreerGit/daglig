@@ -1,7 +1,7 @@
 open! Core
 open! Lib
-
-let () =
+(*
+   let () =
   Eio_main.run
   @@ fun stdenv ->
   Eio.Switch.run
@@ -10,4 +10,4 @@ let () =
     ~sw
     ~stdenv:(stdenv :> Caqti_eio.stdenv)
     ~uri:Uri.empty
-;;
+;; *)

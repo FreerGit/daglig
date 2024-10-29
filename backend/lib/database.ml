@@ -39,13 +39,53 @@ module Migration = struct
     Conn.exec query ()
   ;;
 
-  let run_migrations ~sw ~stdenv ~uri =
-    let connector = Caqti_eio_unix.connect ~sw ~stdenv uri in
-    match connector with
-    | Error e ->
-      raise_s [%message [%here] (sprintf "Connection error: %s" (Caqti_error.show e))]
-    | Ok _ -> ()
+  let run_migrations (module Conn : Caqti_eio.CONNECTION) =
+    let ( let* ) = Result.Let_syntax.( >>= ) in
+    let* _ = create_users_table (module Conn) in
+    let* _ = create_oauth_users_table (module Conn) in
+    Ok ()
   ;;
 end
 
-(* let run_migration *)
+module User = struct
+  open Time_float_unix
+
+  (* Not gonna lie, this is cool as fuck. *)
+  module SQL_UTC = struct
+    type t = Zone.t
+
+    let t =
+      let encode utc = Ok (Zone.to_string utc) in
+      let decode str = Ok (Zone.of_string str) in
+      Caqti_type.(custom ~encode ~decode string)
+    ;;
+  end
+
+  type t =
+    { email : string
+    ; username : string
+    ; timezone : SQL_UTC.t
+    }
+
+  let insert_user =
+    [%rapper
+      execute
+        {sql| 
+            INSERT INTO users VALUES
+            (%string{email}, %string{username} %SQL_UTC{timezone})
+          |sql}
+        record_in]
+  ;;
+end
+
+let%expect_test "SQL_UTC" =
+  let open Time_float_unix in
+  let default : User.SQL_UTC.t = Zone.utc in
+  let plusone : User.SQL_UTC.t = Zone.of_utc_offset ~hours:1 in
+  print_s @@ Zone.sexp_of_t default;
+  print_s @@ Zone.sexp_of_t plusone;
+  [%expect {|
+    UTC
+    UTC+1
+    |}]
+;;

@@ -1,3 +1,5 @@
+open! Core
+
 let run_test ~stdenv ~uri f =
   Eio.Switch.run
   @@ fun sw ->
@@ -17,31 +19,51 @@ let run_test ~stdenv ~uri f =
     (try
        Caqti_eio.Pool.use
          (fun (module Conn : Caqti_eio.CONNECTION) ->
-           Conn.start () |> Result.get_ok;
-           f (module Conn : Caqti_eio.CONNECTION) |> Result.get_ok;
-           Conn.rollback () |> Result.get_ok;
+           let ( let* ) = Result.Let_syntax.( >>= ) in
+           let* _ = Conn.start () in
+           let* _ = f (module Conn : Caqti_eio.CONNECTION) in
+           let* _ = Conn.rollback () in
            Ok ())
          connection
-       |> Result.is_ok
      with
      | _ ->
        (try
           Caqti_eio.Pool.use
             (fun (module Conn : Caqti_eio.CONNECTION) -> Conn.rollback ())
             connection
-          |> Result.get_ok
         with
-        | _ -> ());
-       false)
+        | e ->
+          print_s @@ Exn.sexp_of_t e;
+          raise e))
+;;
+
+let run_insert_user_test =
+  let user : Lib.Database.User.t =
+    { email = "email.."; username = "name.."; timezone = Time_float_unix.Zone.utc }
+  in
+  (* Returns a function which composes multiple queries into a single transaction *)
+  fun conn ->
+    let ( let* ) = Result.Let_syntax.( >>= ) in
+    let* _ = Lib.Database.Migration.run_migrations conn in
+    Lib.Database.User.insert_user user conn
 ;;
 
 (* Main test runner *)
 let run_all_tests ~stdenv ~uri =
-  let tests = [ Lib.Database.Migration.run_migrations ] in
-  let results = List.map (run_test ~stdenv ~uri) tests in
+  let tests = [ Lib.Database.Migration.run_migrations; run_insert_user_test ] in
+  let results = List.map ~f:(run_test ~stdenv ~uri) tests in
   let total = List.length results in
+  List.iter
+    ~f:(fun a ->
+      match a with
+      | Ok _ -> ()
+      | Error a -> printf "%s\n" @@ Caqti_error.show a)
+    results;
   let passed =
-    List.fold_left (fun acc success -> if success then acc + 1 else acc) 0 results
+    List.fold_left
+      ~f:(fun acc success -> if Result.is_ok success then acc + 1 else acc)
+      ~init:0
+      results
   in
   passed = total
 ;;

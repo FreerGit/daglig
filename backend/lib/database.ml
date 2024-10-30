@@ -71,8 +71,8 @@ module User = struct
     [%rapper
       execute
         {sql| 
-            INSERT INTO users VALUES
-            (%string{email}, %string{username} %SQL_UTC{timezone})
+            INSERT INTO users (email, username, timezone)
+            VALUES (%string{email}, %string{username}, %SQL_UTC{timezone})
           |sql}
         record_in]
   ;;

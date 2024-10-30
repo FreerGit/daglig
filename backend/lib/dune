@@ -6,6 +6,8 @@
   core_unix.time_float_unix
   eio.unix
   eio_main
+  httpun
+  httpun-eio
   caqti
   caqti-eio.unix
   caqti-driver-postgresql

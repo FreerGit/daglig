@@ -22,12 +22,14 @@ depends: [
   "ppx_let"
   "ppx_custom_printf"
   "ppx_sexp_message"
-  "pg_query" {= "0.9.6"}
   "eio"
   "eio_main"
+  "httpun"
+  "httpun-eio"
   "caqti"
   "caqti-eio"
   "caqti-driver-postgresql"
+  "pg_query" {= "0.9.6"}
   "ppx_rapper_eio"
   "alcotest"
   "odoc" {with-doc}

@@ -20,10 +20,13 @@
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends
+  ; Compiler & build system
   ocaml
   dune
+  ; Prelude
   core
   core_unix
+  ; preprocessors, testing, printing, string interpolation, etc.
   ppx_jane
   ppx_expect
   ppx_assert
@@ -32,14 +35,20 @@
   ppx_let
   ppx_custom_printf
   ppx_sexp_message
-  (pg_query
-   (= 0.9.6))
+  ; Multicore
   eio
   eio_main
+  ; Server
+  httpun
+  httpun-eio
+  ; Database
   caqti
   caqti-eio
   caqti-driver-postgresql
+  (pg_query
+   (= 0.9.6))
   ppx_rapper_eio
+  ; Testing framework
   alcotest)
  (tags
   (topics "to describe" your project)))

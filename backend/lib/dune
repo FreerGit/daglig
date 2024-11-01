@@ -17,6 +17,7 @@
  (preprocess
   (pps
    ppx_jane
+   ppx_deriving.show
    ppx_expect
    ppx_assert
    ppx_rapper

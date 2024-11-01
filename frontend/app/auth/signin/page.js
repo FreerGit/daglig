@@ -7,7 +7,6 @@ export default async function LoginPage() {
 
   if (session) {
     redirect("/abc");
-    return null;
   }
 
   return (

@@ -39,13 +39,32 @@ let run_test ~stdenv ~uri f =
 
 let run_insert_user_test =
   let user : Lib.Database.User.t =
-    { email = "email.."; username = "name.."; timezone = Time_float_unix.Zone.utc }
+    { email = "email.."
+    ; username = "name.."
+    ; image = None
+    ; timezone = Time_float_unix.Zone.utc
+    }
   in
   (* Returns a function which composes multiple queries into a single transaction *)
   fun conn ->
     let ( let* ) = Result.Let_syntax.( >>= ) in
     let* _ = Lib.Database.Migration.run_migrations conn in
-    Lib.Database.User.insert_user user conn
+    let* id = Lib.Database.User.get_user_id_by_email ~email:user.email conn in
+    assert (Option.is_none id);
+    let* v = Lib.Database.User.insert_user user conn in
+    let* id = Lib.Database.User.get_user_id_by_email ~email:user.email conn in
+    Option.value_exn ~here:[%here] id
+    |> fun id ->
+    assert (id = v);
+    let oauth : Lib.Database.UserOAuth.t =
+      { user_id = 1
+      ; provider = GITHUB
+      ; provider_user_id = "abcd"
+      ; access_token = None
+      ; expires_at = Time_float_unix.now ()
+      }
+    in
+    Lib.Database.UserOAuth.insert_user_oauth oauth conn
 ;;
 
 (* Main test runner *)

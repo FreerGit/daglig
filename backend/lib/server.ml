@@ -19,7 +19,7 @@ let connection_handler (params : Request_info.t Server.ctx) =
   | { Request.meth = `GET; target; _ } ->
     let path = Uri.of_string target |> Uri.path in
     (match path with
-     | "/auth/signup" ->
+     | "/api/proxy/signup" ->
        let p = P.yojson_of_t @@ { foo = "hej"; bar = 2 } in
        let s = Yojson.Safe.to_string p in
        Response.of_string ~body:s `OK

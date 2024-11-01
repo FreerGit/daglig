@@ -11,6 +11,7 @@ module Migration = struct
         CREATE TABLE IF NOT EXISTS users (
           user_id SERIAL PRIMARY KEY,
           email VARCHAR(255) UNIQUE NOT NULL,
+          image VARCHAR(255),
           username VARCHAR(100),
           timezone VARCHAR(50),
           points INT DEFAULT 0,
@@ -64,16 +65,80 @@ module User = struct
   type t =
     { email : string
     ; username : string
+    ; image : string option
     ; timezone : SQL_UTC.t
     }
 
+  let get_user_id_by_email =
+    [%rapper
+      get_opt
+        {sql| 
+            SELECT (@int{user_id}) FROM users WHERE email = %string{email}
+          |sql}]
+  ;;
+
   let insert_user =
+    [%rapper
+      get_one
+        {sql| 
+            INSERT INTO users (email, username, image, timezone)
+            VALUES (%string{email}, %string{username}, %string?{image}, %SQL_UTC{timezone})
+            RETURNING (@int{user_id})
+          |sql}
+        record_in]
+  ;;
+end
+
+module UserOAuth = struct
+  (* Define the UserOAuth type *)
+  module Provider = struct
+    type t =
+      | GITHUB
+      | GOOGLE
+    [@@deriving show { with_path = false }]
+
+    let t =
+      let encode p = Ok (show p) in
+      let decode str =
+        match str with
+        | "GITHUB" -> Ok GITHUB
+        | "GOOGLE" -> Ok GOOGLE
+        | _ -> Error "No such provider"
+      in
+      Caqti_type.(custom ~encode ~decode string)
+    ;;
+  end
+
+  type t =
+    { user_id : int
+    ; provider : Provider.t
+    ; provider_user_id : string
+    ; access_token : string option
+    ; expires_at : Time_float_unix.t
+    }
+
+  module SQL_TIMESTAMP = struct
+    type t = Time_float_unix.t
+
+    let t =
+      let encode utc = Ok (Time_float_unix.to_string utc) in
+      let decode str = Ok (Time_float_unix.of_string str) in
+      Caqti_type.(custom ~encode ~decode string)
+    ;;
+  end
+
+  (* Insert function for user_oauth *)
+  let insert_user_oauth =
     [%rapper
       execute
         {sql| 
-            INSERT INTO users (email, username, timezone)
-            VALUES (%string{email}, %string{username}, %SQL_UTC{timezone})
-          |sql}
+          INSERT INTO oauth_accounts (user_id, provider, provider_user_id, access_token, expires_at)
+          VALUES (%int{user_id}, %Provider{provider}, %string{provider_user_id}, %string?{access_token}, %SQL_TIMESTAMP{expires_at})
+          ON CONFLICT (user_id, provider) DO UPDATE SET
+            provider_user_id = EXCLUDED.provider_user_id,
+            access_token = EXCLUDED.access_token,
+            expires_at = EXCLUDED.expires_at
+        |sql}
         record_in]
   ;;
 end

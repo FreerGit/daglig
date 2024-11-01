@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 export default async function LoginPage() {
   const session = await getServerSession();
-  console.log("Session", session);
+  console.log(session);
 
   if (!session) {
     redirect("/auth/signin");

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
-  const { path } = params;
+  const { path } = await params;
   const serverUrl = `${process.env.SERVER_URL}/${path.join("/")}`;
-
+  console.log(serverUrl);
   try {
     const response = await fetch(serverUrl, {
       method: "GET",
@@ -11,8 +11,14 @@ export async function GET(request, { params }) {
         "Content-Type": "application/json",
       },
     });
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
+    if (response.status == 200) {
+      const data = await response.json();
+      console.log(response);
+      return NextResponse.json(data, { status: response.status });
+    } else {
+      console.log(response.status);
+      return new NextResponse(null, { status: response.status });
+    }
   } catch (error) {
     console.error("Error forwarding GET request:", error);
     return NextResponse.json(

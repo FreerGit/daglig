@@ -1,0 +1,8 @@
+lib: [
+  "_build/install/default/lib/daglig/META"
+  "_build/install/default/lib/daglig/dune-package"
+  "_build/install/default/lib/daglig/opam"
+]
+bin: [
+  "_build/install/default/bin/daglig"
+]

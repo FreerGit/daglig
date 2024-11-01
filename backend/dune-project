@@ -26,6 +26,8 @@
   ; Prelude
   core
   core_unix
+  ; json
+  yojson
   ; preprocessors, testing, printing, string interpolation, etc.
   ppx_jane
   ppx_expect
@@ -35,12 +37,12 @@
   ppx_let
   ppx_custom_printf
   ppx_sexp_message
+  ppx_yojson_conv
   ; Multicore
   eio
   eio_main
   ; Server
-  httpun
-  httpun-eio
+  piaf
   ; Database
   caqti
   caqti-eio

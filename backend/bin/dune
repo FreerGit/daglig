@@ -1,4 +1,6 @@
 (executable
  (public_name daglig)
  (name main)
- (libraries core eio eio_main lib))
+ (libraries core eio eio_main lib)
+ (preprocess
+  (pps ppx_let)))

@@ -1,43 +1,51 @@
 open! Core
 open Piaf
-open Eio.Std
-open Ppx_yojson_conv_lib.Yojson_conv
+(* open Ppx_yojson_conv_lib.Yojson_conv *)
 
-module P = struct
-  type t =
-    { foo : string
-    ; bar : int
-    }
-  [@@deriving yojson]
-end
+let get_body_string body =
+  match Body.to_string body with
+  | Ok s -> s
+  | _ -> raise_s [%message [%here] (sprintf "Expected timestamp")]
+;;
 
-let connection_handler (params : Request_info.t Server.ctx) =
+let connection_handler (params : Request_info.t Server.ctx) pool =
   let headers =
     Headers.of_list [ "connection", "close"; "content-type", "application/json" ]
   in
   match params.request with
+  | { Request.meth = `POST; target; body; _ } ->
+    let path = Uri.of_string target |> Uri.path in
+    print_endline path;
+    (match path with
+     | "/api/proxy/signup" ->
+       let json = get_body_string body in
+       let oauth_user = Api.Signup.t_of_yojson (Yojson.Safe.from_string json) in
+       let user_id = Api.Signup.signup oauth_user pool in
+       (match user_id with
+        | Error _ -> Response.create ~headers `Internal_server_error
+        | Ok _ -> Response.create ~headers `OK)
+     | _ -> Response.create `Not_found)
   | { Request.meth = `GET; target; _ } ->
     let path = Uri.of_string target |> Uri.path in
     (match path with
-     | "/api/proxy/signup" ->
-       let p = P.yojson_of_t @@ { foo = "hej"; bar = 2 } in
-       let s = Yojson.Safe.to_string p in
-       Response.of_string ~body:s `OK
+     | "/abc" -> Response.create `OK
      | _ -> Response.create `Not_found)
   | _ -> Response.create ~headers `Method_not_allowed
 ;;
 
-let run ~sw ~host ~port env handler =
+let run ~sw ~host ~port env pool =
   let domains = Stdlib.Domain.recommended_domain_count () in
-  let config = Server.Config.create ~buffer_size:0x1000 ~domains (`Tcp (host, port)) in
-  let server = Server.create ~config handler in
+  let config =
+    Server.Config.create ~buffer_size:0x1000 ~domains ~backlog:1024 (`Tcp (host, port))
+  in
+  let server = Server.create ~config (fun h -> connection_handler h pool) in
   let command = Server.Command.start ~sw env server in
   command
 ;;
 
-let start ~sw env =
+let start ~sw env conn =
   let host = Eio.Net.Ipaddr.V4.loopback in
-  run ~sw ~host ~port:8000 env connection_handler
+  run ~sw ~host ~port:8000 env conn
 ;;
 
 (* let setup_log ?style_renderer level =
@@ -47,10 +55,7 @@ let start ~sw env =
    Logs.set_reporter (Logs_fmt.reporter ())
    ;; *)
 
-let run_server () =
-  (* setup_log (Some Info); *)
-  Eio_main.run (fun env ->
-    Switch.run (fun sw ->
-      let _command = start ~sw env in
-      ()))
+let run_server ~env ~sw pool =
+  let _command = start ~sw env pool in
+  ()
 ;;

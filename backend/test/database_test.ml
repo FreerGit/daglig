@@ -38,7 +38,8 @@ let run_test ~stdenv ~uri f =
 ;;
 
 let run_insert_user_test =
-  let user : Lib.Database.User.t =
+  let open Lib.DB in
+  let user : Lib.DB.User.t =
     { email = "email.."
     ; username = "name.."
     ; image = None
@@ -48,28 +49,28 @@ let run_insert_user_test =
   (* Returns a function which composes multiple queries into a single transaction *)
   fun conn ->
     let ( let* ) = Result.Let_syntax.( >>= ) in
-    let* _ = Lib.Database.Migration.run_migrations conn in
-    let* id = Lib.Database.User.get_user_id_by_email ~email:user.email conn in
+    let* _ = Migration.run_migrations conn in
+    let* id = User.get_user_id_by_email ~email:user.email conn in
     assert (Option.is_none id);
-    let* v = Lib.Database.User.insert_user user conn in
-    let* id = Lib.Database.User.get_user_id_by_email ~email:user.email conn in
+    let* v = User.insert_user user conn in
+    let* id = User.get_user_id_by_email ~email:user.email conn in
     Option.value_exn ~here:[%here] id
     |> fun id ->
     assert (id = v);
-    let oauth : Lib.Database.UserOAuth.t =
-      { user_id = 1
+    let oauth : Oauth_account.t =
+      { user_id = id
       ; provider = GITHUB
       ; provider_user_id = "abcd"
       ; access_token = None
       ; expires_at = Time_float_unix.now ()
       }
     in
-    Lib.Database.UserOAuth.insert_user_oauth oauth conn
+    Oauth_account.insert_or_update_oauth_account oauth conn
 ;;
 
 (* Main test runner *)
 let run_all_tests ~stdenv ~uri =
-  let tests = [ Lib.Database.Migration.run_migrations; run_insert_user_test ] in
+  let tests = [ Lib.DB.Migration.run_migrations; run_insert_user_test ] in
   let results = List.map ~f:(run_test ~stdenv ~uri) tests in
   let total = List.length results in
   List.iter
@@ -88,7 +89,7 @@ let run_all_tests ~stdenv ~uri =
 ;;
 
 let test_db () =
-  let uri = Uri.of_string "postgresql://dev:dev@localhost:5432/dev" in
+  let uri = Uri.of_string "postgresql://test:test@localhost:5555/test" in
   Eio_main.run
   @@ fun stdenv ->
   (Alcotest.check Alcotest.bool)

@@ -1,26 +1,6 @@
 (library
  (name lib)
  (inline_tests)
- (libraries
-  core
-  core_unix.time_float_unix
-  eio.unix
-  eio_main
-  httpun
-  httpun-eio
-  piaf
-  yojson
-  caqti
-  caqti-eio.unix
-  caqti-driver-postgresql
-  ppx_rapper_eio)
+ (libraries database api core eio.unix eio_main piaf yojson)
  (preprocess
-  (pps
-   ppx_jane
-   ppx_deriving.show
-   ppx_expect
-   ppx_assert
-   ppx_rapper
-   ppx_sexp_message
-   ppx_let
-   ppx_yojson_conv)))
+  (pps ppx_jane ppx_sexp_message)))

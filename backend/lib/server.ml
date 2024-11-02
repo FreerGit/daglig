@@ -19,10 +19,13 @@ let connection_handler (params : Request_info.t Server.ctx) pool =
     (match path with
      | "/api/proxy/signup" ->
        let json = get_body_string body in
+       Logs.info (fun m -> m "%s" json);
        let oauth_user = Api.Signup.t_of_yojson (Yojson.Safe.from_string json) in
        let user_id = Api.Signup.signup oauth_user pool in
        (match user_id with
-        | Error _ -> Response.create ~headers `Internal_server_error
+        | Error e ->
+          Logs.err (fun m -> m "%s" (Caqti_error.show e));
+          Response.create ~headers `Internal_server_error
         | Ok _ -> Response.create ~headers `OK)
      | _ -> Response.create `Not_found)
   | { Request.meth = `GET; target; _ } ->
@@ -48,14 +51,15 @@ let start ~sw env conn =
   run ~sw ~host ~port:8000 env conn
 ;;
 
-(* let setup_log ?style_renderer level =
-   Logs_threaded.enable ();
-   Fmt_tty.setup_std_outputs ?style_renderer ();
-   Logs.set_level ~all:true level;
-   Logs.set_reporter (Logs_fmt.reporter ())
-   ;; *)
+let setup_log ?style_renderer level =
+  Logs_threaded.enable ();
+  Fmt_tty.setup_std_outputs ?style_renderer ();
+  Logs.set_level ~all:true level;
+  Logs.set_reporter (Logs_fmt.reporter ())
+;;
 
 let run_server ~env ~sw pool =
+  setup_log (Some Info);
   let _command = start ~sw env pool in
   ()
 ;;

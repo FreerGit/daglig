@@ -3,13 +3,13 @@ open Ppx_yojson_conv_lib.Yojson_conv
 
 type t =
   { user_id : int option [@yojson.option]
-  ; provider_user_id : string
+  ; provider_account_id : string
   ; email : string
   ; name : string
   ; image : string option
   ; provider : Database.Types.Provider.t
   ; access_token : string option
-  ; expires_at : Database.Types.SQL_TIMESTAMP.t
+  ; expires_at : Database.Types.SQL_TIMESTAMP.t option [@yojson.option]
   }
 [@@deriving yojson]
 
@@ -22,7 +22,7 @@ let signup t pool =
   let oauth_entry : Oauth_account.t =
     { user_id = 0 (* set below *)
     ; provider = t.provider
-    ; provider_user_id = t.provider_user_id
+    ; provider_account_id = t.provider_account_id
     ; access_token = t.access_token
     ; expires_at = t.expires_at
     }

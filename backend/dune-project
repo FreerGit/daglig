@@ -26,6 +26,9 @@
   ; Prelude
   core
   core_unix
+  ; Logging/printing
+  logs
+  fmt
   ; json
   yojson
   ; preprocessors, testing, printing, string interpolation, etc.

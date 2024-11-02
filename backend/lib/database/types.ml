@@ -41,16 +41,29 @@ end
 
 module Provider = struct
   type t =
-    | GITHUB
-    | GOOGLE
-  [@@deriving show { with_path = false }, yojson]
+    | Github
+    | Google
+  [@@deriving show { with_path = false }]
+
+  let yojson_of_t = function
+    | Github -> `String "github"
+    | Google -> `String "google"
+  ;;
+
+  let t_of_yojson = function
+    | `String "github" -> Github
+    | `String "google" -> Google
+    | _ -> raise_s [%message [%here] (sprintf "Expected Provider.t")]
+  ;;
 
   let t =
-    let encode p = Ok (show p) in
-    let decode str =
-      match str with
-      | "GITHUB" -> Ok GITHUB
-      | "GOOGLE" -> Ok GOOGLE
+    let encode = function
+      | Github -> Ok "github"
+      | Google -> Ok "google"
+    in
+    let decode = function
+      | "github" -> Ok Github
+      | "google" -> Ok Google
       | _ -> Error "No such provider"
     in
     Caqti_type.(custom ~encode ~decode string)

@@ -14,6 +14,8 @@ depends: [
   "dune" {>= "3.16"}
   "core"
   "core_unix"
+  "logs"
+  "fmt"
   "yojson"
   "ppx_jane"
   "ppx_expect"

@@ -18,9 +18,10 @@ const authOptions = {
     // error: "auth/error",
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
+      console.log("signIn callback");
       const oauth = {
-        provider_user_id: profile.id,
+        provider_account_id: account.providerAccountId,
         email: user.email,
         name: user.name,
         image: user.image,
@@ -41,6 +42,7 @@ const authOptions = {
       return response.ok;
     },
     async jwt({ token, account }) {
+      console.log("jwt callback");
       if (account) {
         token.accessToken = account.access_token;
         token.provider = account.provider;
@@ -48,6 +50,7 @@ const authOptions = {
       return token;
     },
     async session({ session, token }) {
+      console.log("session callback");
       session.accessToken = token.accessToken;
       session.provider = token.provider;
       return session;

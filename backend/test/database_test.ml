@@ -59,10 +59,10 @@ let run_insert_user_test =
     assert (id = v);
     let oauth : Oauth_account.t =
       { user_id = id
-      ; provider = GITHUB
-      ; provider_user_id = "abcd"
+      ; provider = Github
+      ; provider_account_id = "abcd"
       ; access_token = None
-      ; expires_at = Time_float_unix.now ()
+      ; expires_at = None
       }
     in
     Oauth_account.insert_or_update_oauth_account oauth conn

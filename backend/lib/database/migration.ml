@@ -28,7 +28,7 @@ let create_oauth_users_table (module Conn : Caqti_eio.CONNECTION) =
           oauth_id SERIAL PRIMARY KEY,                     
           user_id INT REFERENCES users(user_id) ON DELETE CASCADE,  
           provider VARCHAR(50) NOT NULL,                   
-          provider_user_id VARCHAR(255) NOT NULL,          
+          provider_account_id VARCHAR(255) NOT NULL,          
           access_token TEXT,
           expires_at TIMESTAMP,
           UNIQUE(user_id, provider)

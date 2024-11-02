@@ -1,6 +1,17 @@
 (library
  (name lib)
  (inline_tests)
- (libraries database api core eio.unix eio_main piaf yojson)
+ (libraries
+  database
+  api
+  core
+  eio.unix
+  eio_main
+  piaf
+  yojson
+  logs
+  logs.fmt
+  logs.threaded
+  fmt.tty)
  (preprocess
   (pps ppx_jane ppx_sexp_message)))

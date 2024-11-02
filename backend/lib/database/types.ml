@@ -32,7 +32,9 @@ module SQL_TIMESTAMP = struct
 
   let t_of_yojson json =
     match json with
-    | `String s -> Time_float_unix.of_string s
+    | `Int timestamp ->
+      Time_float_unix.Span.of_sec (Float.of_int timestamp)
+      |> Time_float_unix.of_span_since_epoch
     | _ -> raise_s [%message [%here] (sprintf "Expected timestamp")]
   ;;
 

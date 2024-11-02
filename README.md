@@ -13,16 +13,11 @@ The Nextjs server proxies requests for the CRUD server, this solves CORS and TLS
 - Setup https server httpun/eio
 
 ### Devops
-- Setup postgres container
 - Setup both servers in joint container
 - local postgres container for dev, figure out how to automatically switch that out for fly.io postgres.
 - Look into automatic deployment on fly.io
 
 ### Database
-- Try out caqti-eio with ppx_rapper
-- Integrate Oauth with db
-
-
 
 
 ## Backend

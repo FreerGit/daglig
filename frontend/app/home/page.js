@@ -2,6 +2,8 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
 import { LineChart } from "@mantine/charts";
+import { Button } from "@mantine/core";
+import { TaskManager } from "../components/TaskManager";
 
 export default async function LoginPage() {
   const session = await getServerSession();
@@ -13,9 +15,9 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col items-center mt-8 h-screen">
+    <div className="flex flex-col items-center mt-8 h-screen w-screen">
       <h1 className="font-semibold text-[54px] mb-4">Your Snowball</h1>
-      <div className="flex w-3/4 h-1/2">
+      <div className="flex max-h-56 mr-6 xl:w-1/2 md:w-3/5 sm:w-full h-1/2">
         <LineChart
           className="w-full h-full"
           data={data}
@@ -24,9 +26,64 @@ export default async function LoginPage() {
           series={[{ name: "Points", color: "red" }]}
         />
       </div>
+
+      <TaskManager initialCards={cards} />
     </div>
   );
 }
+
+const cards = [
+  {
+    id: 321321,
+    points: 5,
+    description: "Lorem ipsum dolor sit amet.",
+  },
+  {
+    id: 321322,
+    points: 2,
+    description: "Consectetur adipiscing elit.",
+  },
+  {
+    id: 321323,
+    points: 8,
+    description: "Sed do eiusmod tempor incididunt.",
+  },
+  {
+    id: 321324,
+    points: 3,
+    description: "Ut enim ad minim veniam.",
+  },
+  {
+    id: 321325,
+    points: 7,
+    description: "Quis nostrud exercitation ullamco.",
+  },
+  {
+    id: 321326,
+    points: 1,
+    description: "Laboris nisi ut aliquip ex ea commodo.",
+  },
+  {
+    id: 321327,
+    points: 6,
+    description: "Duis aute irure dolor in reprehenderit.",
+  },
+  {
+    id: 321328,
+    points: 4,
+    description: "Excepteur sint occaecat cupidatat non proident.",
+  },
+  {
+    id: 321329,
+    points: 10,
+    description: "Sunt in culpa qui officia deserunt.",
+  },
+  {
+    id: 321330,
+    points: 9,
+    description: "Mollit anim id est laborum.",
+  },
+];
 
 const data = [
   {

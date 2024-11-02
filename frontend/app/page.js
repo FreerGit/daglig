@@ -1,5 +1,4 @@
 import styles from "./styles/landingPage.module.css";
-import IntroGraph from "../public/400x200.svg";
 import Image from "next/image";
 import { Button } from "@mantine/core";
 import { redirect } from "next/navigation";

@@ -1,30 +1,33 @@
-import localFont from "next/font/local";
 import "./styles/globals.css";
-import "@mantine/core/styles.css";
-import { theme } from "../theme";
-import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import Providers from "./providers";
 import { getServerSession } from "next-auth";
+import { GeistSans } from "geist/font/sans";
+import { createTheme, ColorSchemeScript, MantineProvider } from "@mantine/core";
+import "@mantine/core/styles.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+const theme = createTheme({
+  /** Put your mantine theme override here */
+  fontFamily: "inherit",
+  lineHeights: "inherit",
 });
 
 export default async function RootLayout({ children }) {
   const session = await getServerSession();
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${GeistSans.className} antialiased dark:bg-gray-950`}
+      suppressHydrationWarning
+    >
       <head>
-        <ColorSchemeScript />
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
         />
+        <ColorSchemeScript />
       </head>
 
-      <body className={`${geistSans.variable}`}>
+      <body>
         <MantineProvider theme={theme}>
           <Providers session={session}>{children}</Providers>
         </MantineProvider>

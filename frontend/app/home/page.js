@@ -12,7 +12,7 @@ export default async function LoginPage() {
 
   return (
     <div>
-      <h1>Hello!</h1>
+      <h1>Your snowball</h1>
     </div>
   );
 }

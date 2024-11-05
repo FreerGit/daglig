@@ -15,9 +15,9 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col items-center mt-8 h-screen w-screen">
+    <div className="flex flex-col items-center mt-4 h-screen w-screen">
       <h1 className="font-semibold text-[54px] mb-4">Your Snowball</h1>
-      <div className="flex max-h-56 mr-6 xl:w-1/2 md:w-3/5 sm:w-full h-1/2">
+      <div className="flex mr-8 w-4/5 xl:w-1/2 md:w-2/3 sm:w-4/5 min-h-[25%]">
         <LineChart
           className="w-full h-full"
           data={data}
@@ -26,8 +26,9 @@ export default async function LoginPage() {
           series={[{ name: "Points", color: "red" }]}
         />
       </div>
-
-      <TaskManager initialCards={cards} />
+      <div className="mt-12 w-full">
+        <TaskManager initialCards={cards} />
+      </div>
     </div>
   );
 }

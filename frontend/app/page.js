@@ -2,22 +2,8 @@ import Image from "next/image";
 import { Button } from "@mantine/core";
 import { redirect } from "next/navigation";
 import RedirectButton from "./components/RedirectButton";
-import "./styles/globals.css";
+// import "./styles/globals.css";
 
-// .intro {
-//   text-align: center;
-// }
-
-// .intro h1 {
-//   font-size: 54px;
-//   line-height: 62px;
-//   margin-bottom: 16px;
-// }
-
-// .intro p {
-//   font-size: 22px;
-//   margin-bottom: 48px;
-// }
 export default function LandingPage() {
   return (
     <div>

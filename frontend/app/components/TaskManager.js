@@ -74,44 +74,62 @@ export const TaskManager = ({ initialCards }) => {
   };
 
   return (
-    <div>
-      <div className="flex justify-around mb-4">
-        <Button onClick={toggleRemoveMode}>
+    <div className="">
+      <div
+        className="flex justify-around mx-[15%] sm:mx-[20%]
+       md:mx-[25%] lg:mx-[30%] xl:mx-[40%] mb-4"
+      >
+        <Button variant="default" onClick={toggleRemoveMode}>
           {isRemoving ? "Cancel" : "Remove"}
         </Button>
-        <Button onClick={() => setEditModalOpen(true)}>Update</Button>
-        <Button onClick={() => handleAddCard()}>Add</Button>
+        <Button variant="default" onClick={() => setEditModalOpen(true)}>
+          Update
+        </Button>
+        <Button variant="default" onClick={() => handleAddCard()}>
+          Add
+        </Button>
       </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-3xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-[5%] md:mx-[10%] lg:mx-[15%] ">
         {cards.map((card, index) => (
           <div
             key={card.id}
-            className={`border p-4 rounded m-2 cursor-pointer ${
+            className={`border p-4 rounded m-2 cursor-pointer flex-1 ${
               isRemoving ? (selectedCards.has(card.id) ? "bg-red-200" : "") : ""
-            } ${isRemoving ? `${styles.card}` : ""} `}
+            } ${isRemoving ? `${styles.card}` : ""}`}
             style={{
               animationDelay: `${-0.1 + index * -0.05}s`, // Adjust delay based on index
               animationDuration: "0.3s", // Fixed duration
             }}
-            onClick={() => isRemoving && toggleCardSelection(card.id)}
+            onClick={() => isRemoving && toggleCardSelectionkat(card.id)}
           >
-            <h3 className="font-semibold">{card.description}</h3>
-            <div className="flex">
-              <p>Points: {card.points}</p>
-              {isRemoving ? <></> : <Button>fdsa</Button>}
+            <div className="w-full">
+              <h3 className="font-semibold">{card.description}</h3>
+              <div className="flex justify-between items-center">
+                <p>Points: {card.points}</p>
+                {isRemoving ? (
+                  <></>
+                ) : (
+                  <Button variant="subtle" color="green">
+                    ✔
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         ))}
       </div>
+    </div>
+  );
+};
 
-      {isRemoving && selectedCards.size > 0 && (
+{
+  /* {isRemoving && selectedCards.size > 0 && (
         <Button onClick={removeSelectedCards} className="mt-4">
           Confirm Removal
         </Button>
       )}
 
-      {/* Modals */}
+
       <Modal
         opened={isEditModalOpen}
         onClose={() => setEditModalOpen(false)}
@@ -125,7 +143,6 @@ export const TaskManager = ({ initialCards }) => {
         <Button onClick={handleUpdateCard}>Update Card</Button>
       </Modal>
 
-      {/* Add Modal */}
       <Modal
         opened={newCardDescription !== ""} // This is a temporary approach; use a better state for modal control
         onClose={() => setNewCardDescription("")}
@@ -137,7 +154,5 @@ export const TaskManager = ({ initialCards }) => {
           onChange={(e) => setNewCardDescription(e.target.value)}
         />
         <Button onClick={handleAddCard}>Add Card</Button>
-      </Modal>
-    </div>
-  );
-};
+      </Modal> */
+}

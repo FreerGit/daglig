@@ -89,7 +89,7 @@ export const TaskManager = ({ initialCards }) => {
           Add
         </Button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-[5%] md:mx-[10%] lg:mx-[15%] ">
+      <div className="overflow-hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-[5%] md:mx-[10%] lg:mx-[15%] ">
         {cards.map((card, index) => (
           <div
             key={card.id}

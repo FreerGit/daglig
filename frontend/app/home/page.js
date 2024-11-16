@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { LineChart } from "@mantine/charts";
 import { Button } from "@mantine/core";
 import { TaskManager } from "../components/TaskManager";
+import { ChartTooltip } from "../components/ChartTooltip";
 
 export default async function LoginPage() {
   const session = await getServerSession();
@@ -24,6 +25,9 @@ export default async function LoginPage() {
           dataKey="date"
           yAxisProps={{ domain: [0, 50] }}
           series={[{ name: "Points", color: "red" }]}
+          tooltipProps={{
+            content: ChartTooltip,
+          }}
         />
       </div>
       <div className="mt-12 w-full">

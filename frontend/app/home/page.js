@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { LineChart } from "@mantine/charts";
 import { Button } from "@mantine/core";
-import { TaskManager } from "../components/TaskManager";
+import { TaskManager } from "../components/TaskManager/TaskManager";
 import { ChartTooltip } from "../components/ChartTooltip";
 
 export default async function LoginPage() {

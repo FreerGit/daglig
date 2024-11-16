@@ -38,9 +38,40 @@ let create_oauth_users_table (module Conn : Caqti_eio.CONNECTION) =
   Conn.exec query ()
 ;;
 
+let create_task_table (module Conn : Caqti_eio.CONNECTION) =
+  (* The INDEX is for faster querying of tasks that need reset *)
+  let mk_table =
+    (unit ->. unit)
+    @@ {|
+        CREATE TABLE IF NOT EXISTS tasks (
+          task_id SERIAL PRIMARY KEY,
+          user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+          description VARCHAR(200),
+          points INT NOT NULL,
+          recurrence_type VARCHAR(6) NOT NULL,
+          last_reset_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+          created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+      |}
+  in
+  let mk_index =
+    (unit ->. unit)
+    @@ {|
+        CREATE INDEX IF NOT EXISTS idx_tasks_reset 
+        ON tasks (user_id, recurrence_type, last_reset_at);
+      |}
+  in
+  let ( let* ) = Result.Let_syntax.( >>= ) in
+  let* _ = Conn.exec mk_table () in
+  let* _ = Conn.exec mk_index () in
+  Ok ()
+;;
+
 let run_migrations (module Conn : Caqti_eio.CONNECTION) =
   let ( let* ) = Result.Let_syntax.( >>= ) in
   let* _ = create_users_table (module Conn) in
   let* _ = create_oauth_users_table (module Conn) in
+  let* _ = create_task_table (module Conn) in
   Ok ()
 ;;

@@ -45,27 +45,49 @@ module Provider = struct
   type t =
     | Github
     | Google
-  [@@deriving show { with_path = false }]
-
-  let yojson_of_t = function
-    | Github -> `String "github"
-    | Google -> `String "google"
-  ;;
+  [@@deriving yojson]
 
   let t_of_yojson = function
     | `String "github" -> Github
+    | `String "Github" -> Github
     | `String "google" -> Google
+    | `String "Google" -> Google
     | _ -> raise_s [%message [%here] (sprintf "Expected Provider.t")]
+  ;;
+
+  let yojson_of_t = function
+    | Github -> `String "Github"
+    | Google -> `String "Google"
   ;;
 
   let t =
     let encode = function
-      | Github -> Ok "github"
-      | Google -> Ok "google"
+      | Github -> Ok "Github"
+      | Google -> Ok "Google"
     in
     let decode = function
-      | "github" -> Ok Github
-      | "google" -> Ok Google
+      | "Github" -> Ok Github
+      | "Google" -> Ok Google
+      | _ -> Error "No such provider"
+    in
+    Caqti_type.(custom ~encode ~decode string)
+  ;;
+end
+
+module Recurrence = struct
+  type t =
+    | Daily
+    | Weekly
+  [@@deriving yojson]
+
+  let t =
+    let encode = function
+      | Daily -> Ok "Daily"
+      | Weekly -> Ok "Weekly"
+    in
+    let decode = function
+      | "Daily" -> Ok Daily
+      | "Weekly" -> Ok Weekly
       | _ -> Error "No such provider"
     in
     Caqti_type.(custom ~encode ~decode string)

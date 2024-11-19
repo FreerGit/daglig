@@ -93,9 +93,17 @@ let run_insert_and_get_tasks =
       ; { description = "GHI"; points = 30; recurrence_type = Types.Recurrence.Daily }
       ]
     in
-    (* ... insert all the tasks using Task.insert_task ... *)
     Eio.Fiber.all
-      (List.map ~f:(fun task () -> ignore (Task.insert_task ~user_id:id task conn)) tasks);
+      (List.map
+         ~f:(fun task () ->
+           ignore
+             (Task.insert_task_query
+                ~user_id:id
+                ~description:task.description
+                ~points:task.points
+                ~recurrence_type:task.recurrence_type
+                conn))
+         tasks);
     let* ts = Task.get_users_tasks ~user_id:id conn in
     assert (List.length ts = 3);
     Ok ()

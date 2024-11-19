@@ -6,6 +6,9 @@ The Nextjs server proxies requests for the CRUD server, this solves CORS and TLS
 
 ## WIP
 
+### asap's
+If cookie and db get out of sync (mostly dev), redirect.
+
 ### Frontend
 - Setup cypress with auth, github token.
 

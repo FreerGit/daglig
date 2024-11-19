@@ -78,7 +78,17 @@ module Recurrence = struct
   type t =
     | Daily
     | Weekly
-  [@@deriving yojson]
+
+  let t_of_yojson = function
+    | `String "Daily" -> Daily
+    | `String "Weekly" -> Weekly
+    | _ -> raise_s [%message [%here] (sprintf "Expected Recurrence.t")]
+  ;;
+
+  let yojson_of_t = function
+    | Daily -> `String "Daily"
+    | Weekly -> `String "Weekly"
+  ;;
 
   let t =
     let encode = function
@@ -93,3 +103,16 @@ module Recurrence = struct
     Caqti_type.(custom ~encode ~decode string)
   ;;
 end
+
+let%expect_test "SQL_UTC" =
+  let d = Recurrence.Daily in
+  let w = Recurrence.Weekly in
+  let daily = Yojson.Safe.to_string (Recurrence.yojson_of_t d) in
+  let weekly = Yojson.Safe.to_string (Recurrence.yojson_of_t w) in
+  print_endline daily;
+  print_endline weekly;
+  [%expect {|
+    "Daily"
+    "Weekly"
+    |}]
+;;

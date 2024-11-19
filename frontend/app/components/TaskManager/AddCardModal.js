@@ -4,12 +4,12 @@ import { Modal, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { TextInput, Select, NumberInput, Button, Box } from "@mantine/core";
 
-const AddCardForm = () => {
+const AddCardForm = ({ addCard, onClose }) => {
   const form = useForm({
     initialValues: {
       description: "",
-      recurring: "",
-      points: 0,
+      recurrence_type: "",
+      points: 1,
     },
 
     validate: {
@@ -19,15 +19,38 @@ const AddCardForm = () => {
           : value.length > 200
           ? "Description must be 200 characters or less"
           : null,
-      recurring: (value) => (!value ? "Please select daily or weekly" : null),
+      recurrence_type: (value) =>
+        !value ? "Please select daily or weekly" : null,
       points: (value) =>
-        value < 0 || value > 10 ? "Points must be between 0 and 10" : null,
+        value < 1 || value > 10 ? "Points must be between 1 and 10" : null,
     },
   });
 
+  const handleSubmit = async (values) => {
+    try {
+      const response = await fetch("/api/proxy/add-task", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add task");
+      }
+
+      // Update state with the new task and close modal
+      addCard({ points: values.points, description: values.description });
+      onClose();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
+
   return (
     <Box mx="auto" maw={400}>
-      <form onSubmit={form.onSubmit((values) => console.log(values))}>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
         <Textarea
           label="Description"
           placeholder="Enter a description"
@@ -39,10 +62,10 @@ const AddCardForm = () => {
           label="Recurring"
           placeholder="Select an option"
           data={[
-            { value: "daily", label: "Daily" },
-            { value: "weekly", label: "Weekly" },
+            { value: "Daily", label: "Daily" },
+            { value: "Weekly", label: "Weekly" },
           ]}
-          {...form.getInputProps("recurring")}
+          {...form.getInputProps("recurrence_type")}
         />
 
         <NumberInput
@@ -61,11 +84,11 @@ const AddCardForm = () => {
   );
 };
 
-export const AddCardModal = ({ setCards, opened, onClose }) => {
+export const AddCardModal = ({ addCard, opened, onClose }) => {
   return (
     <>
       <Modal opened={opened} onClose={onClose} title="Add a new task">
-        <AddCardForm></AddCardForm>
+        <AddCardForm addCard={addCard} onClose={onClose} />
       </Modal>
     </>
   );

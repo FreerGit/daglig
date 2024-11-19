@@ -39,52 +39,42 @@ export default async function LoginPage() {
 
 const cards = [
   {
-    id: 321321,
     points: 5,
     description: "Lorem ipsum dolor sit amet.",
   },
   {
-    id: 321322,
     points: 2,
     description: "Consectetur adipiscing elit.",
   },
   {
-    id: 321323,
     points: 8,
     description: "Sed do eiusmod tempor incididunt.",
   },
   {
-    id: 321324,
     points: 3,
     description: "Ut enim ad minim veniam.",
   },
   {
-    id: 321325,
     points: 7,
     description: "Quis nostrud exercitation ullamco.",
   },
   {
-    id: 321326,
     points: 1,
     description: "Laboris nisi ut aliquip ex ea commodo.",
   },
   {
-    id: 321327,
     points: 6,
     description: "Duis aute irure dolor in reprehenderit.",
   },
   {
-    id: 321328,
     points: 4,
     description: "Excepteur sint occaecat cupidatat non proident.",
   },
   {
-    id: 321329,
     points: 10,
     description: "Sunt in culpa qui officia deserunt.",
   },
   {
-    id: 321330,
     points: 9,
     description: "Mollit anim id est laborum.",
   },

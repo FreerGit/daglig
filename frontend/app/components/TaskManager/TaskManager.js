@@ -47,7 +47,7 @@ export const TaskManager = ({ initialCards }) => {
       <div className="overflow-hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-[5%] md:mx-[10%] lg:mx-[15%] ">
         {cards.map((card, index) => (
           <div
-            key={card.id}
+            key={index}
             className={`border p-4 rounded m-2 cursor-pointer flex-1 ${
               isRemoving ? (selectedCards.has(card.id) ? "bg-red-200" : "") : ""
             } ${isRemoving ? `${styles.card}` : ""}`}

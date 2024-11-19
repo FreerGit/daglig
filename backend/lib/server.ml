@@ -5,15 +5,16 @@ open Piaf
 let get_body_string body =
   match Body.to_string body with
   | Ok s -> s
-  | _ -> raise_s [%message [%here] (sprintf "Expected timestamp")]
+  | _ -> raise_s [%message [%here] (sprintf "Expected json")]
 ;;
 
+(* TODO clean this up ffs *)
 let connection_handler (params : Request_info.t Server.ctx) pool =
   let headers =
     Headers.of_list [ "connection", "close"; "content-type", "application/json" ]
   in
   match params.request with
-  | { Request.meth = `POST; target; body; _ } ->
+  | { Request.meth = `POST; target; body; headers; _ } ->
     let path = Uri.of_string target |> Uri.path in
     print_endline path;
     (match path with
@@ -27,6 +28,17 @@ let connection_handler (params : Request_info.t Server.ctx) pool =
           Logs.err (fun m -> m "%s" (Caqti_error.show e));
           Response.create ~headers `Internal_server_error
         | Ok _ -> Response.create ~headers `OK)
+     | "/api/proxy/add-task" ->
+       let json = get_body_string body in
+       let email = Headers.get headers "X-User-Email" in
+       print_endline json;
+       let task = Database.Task.t_of_yojson (Yojson.Safe.from_string json) in
+       print_s ([%sexp_of: string option] email);
+       (match email with
+        | None -> Response.create `Unauthorized
+        | Some email ->
+          Logs.info (fun m -> m "%s" json);
+          Api.Task.add_task email task pool)
      | _ -> Response.create `Not_found)
   | { Request.meth = `GET; target; _ } ->
     let path = Uri.of_string target |> Uri.path in

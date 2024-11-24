@@ -12,8 +12,7 @@ let get_users_tasks =
   [%rapper
     get_many
       {sql| 
-          SELECT (@string{description}, @int{points}, 
-                  @Types.Recurrence{recurrence_type}) 
+          SELECT @string{description}, @int{points}, @Types.Recurrence{recurrence_type}
                   FROM tasks WHERE user_id = %int{user_id}
           |sql}
       record_out]

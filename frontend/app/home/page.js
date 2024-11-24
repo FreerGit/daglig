@@ -2,17 +2,30 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
 import { LineChart } from "@mantine/charts";
-import { Button } from "@mantine/core";
+import { Button, resolveClassNames } from "@mantine/core";
 import { TaskManager } from "../components/TaskManager/TaskManager";
 import { ChartTooltip } from "../components/ChartTooltip";
+import { cookies } from "next/headers";
 
 export default async function LoginPage() {
   const session = await getServerSession();
-  console.log(session);
-
   if (!session) {
     redirect("/auth/signin");
     return null;
+  }
+
+  const sessionCookies = await cookies();
+  const response = await fetch(`${process.env.NEXT_URL}/api/proxy/get-tasks`, {
+    headers: {
+      Cookie: sessionCookies.toString(),
+    },
+    credentials: "include",
+  });
+
+  let cards = [];
+  if (response.ok) {
+    cards = await response.json();
+    console.log(cards);
   }
 
   return (
@@ -36,49 +49,6 @@ export default async function LoginPage() {
     </div>
   );
 }
-
-const cards = [
-  {
-    points: 5,
-    description: "Lorem ipsum dolor sit amet.",
-  },
-  {
-    points: 2,
-    description: "Consectetur adipiscing elit.",
-  },
-  {
-    points: 8,
-    description: "Sed do eiusmod tempor incididunt.",
-  },
-  {
-    points: 3,
-    description: "Ut enim ad minim veniam.",
-  },
-  {
-    points: 7,
-    description: "Quis nostrud exercitation ullamco.",
-  },
-  {
-    points: 1,
-    description: "Laboris nisi ut aliquip ex ea commodo.",
-  },
-  {
-    points: 6,
-    description: "Duis aute irure dolor in reprehenderit.",
-  },
-  {
-    points: 4,
-    description: "Excepteur sint occaecat cupidatat non proident.",
-  },
-  {
-    points: 10,
-    description: "Sunt in culpa qui officia deserunt.",
-  },
-  {
-    points: 9,
-    description: "Mollit anim id est laborum.",
-  },
-];
 
 const data = [
   {

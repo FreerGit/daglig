@@ -6,22 +6,34 @@ const secret = process.env.NEXTAUTH_SECRET;
 export async function GET(request, { params }) {
   const { path } = await params;
   const serverUrl = `${process.env.SERVER_URL}/${path.join("/")}`;
-  console.log(serverUrl);
+  console.log("serverUrl", serverUrl);
+  const token = await getToken({ req: request, secret });
+  if (!token) {
+    return NextResponse.json(
+      { error: "Session token missing or invalid" },
+      { status: 401 }
+    );
+  }
+
   try {
     const response = await fetch(serverUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "X-User-Email": token.email,
       },
     });
-    if (response.status == 200) {
-      const data = await response.json();
-      console.log(response);
-      return NextResponse.json(data, { status: response.status });
-    } else {
-      console.log(response.status);
-      return new NextResponse(null, { status: response.status });
+
+    if (response.status === 200) {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        console.log("JSON");
+        const data = await response.json();
+        return NextResponse.json(data, { status: response.status });
+      }
     }
+
+    return new NextResponse(null, { status: response.status });
   } catch (error) {
     console.error("Error forwarding GET request:", error);
     return NextResponse.json(

@@ -10,9 +10,6 @@ let get_body_string body =
 
 (* TODO clean this up ffs *)
 let connection_handler (params : Request_info.t Server.ctx) pool =
-  let headers =
-    Headers.of_list [ "connection", "close"; "content-type", "application/json" ]
-  in
   match params.request with
   | { Request.meth = `POST; target; body; headers; _ } ->
     let path = Uri.of_string target |> Uri.path in
@@ -26,8 +23,8 @@ let connection_handler (params : Request_info.t Server.ctx) pool =
        (match user_id with
         | Error e ->
           Logs.err (fun m -> m "%s" (Caqti_error.show e));
-          Response.create ~headers `Internal_server_error
-        | Ok _ -> Response.create ~headers `OK)
+          Response.create `Internal_server_error
+        | Ok _ -> Response.create `OK)
      | "/api/proxy/add-task" ->
        let json = get_body_string body in
        let email = Headers.get headers "X-User-Email" in
@@ -40,12 +37,17 @@ let connection_handler (params : Request_info.t Server.ctx) pool =
           Logs.info (fun m -> m "%s" json);
           Api.Task.add_task email task pool)
      | _ -> Response.create `Not_found)
-  | { Request.meth = `GET; target; _ } ->
+  | { Request.meth = `GET; target; headers; _ } ->
     let path = Uri.of_string target |> Uri.path in
     (match path with
+     | "/get-tasks" ->
+       let email = Headers.get headers "X-User-Email" in
+       (match email with
+        | None -> Response.create `Unauthorized
+        | Some email -> Api.Task.get_tasks email pool)
      | "/abc" -> Response.create `OK
      | _ -> Response.create `Not_found)
-  | _ -> Response.create ~headers `Method_not_allowed
+  | _ -> Response.create `Method_not_allowed
 ;;
 
 let run ~sw ~host ~port env pool =

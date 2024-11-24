@@ -78,6 +78,7 @@ module Recurrence = struct
   type t =
     | Daily
     | Weekly
+  [@@deriving sexp]
 
   let t_of_yojson = function
     | `String "Daily" -> Daily

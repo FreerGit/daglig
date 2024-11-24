@@ -47,6 +47,17 @@ let connection_handler (params : Request_info.t Server.ctx) pool =
         | Some email -> Api.Task.get_tasks email pool)
      | "/abc" -> Response.create `OK
      | _ -> Response.create `Not_found)
+  | { Request.meth = `PUT; target; body; headers; _ } ->
+    let path = Uri.of_string target |> Uri.path in
+    (match path with
+     | "/update-task" ->
+       let json = get_body_string body in
+       let email = Headers.get headers "X-User-Email" in
+       let task = Database.Task.t_of_yojson (Yojson.Safe.from_string json) in
+       (match email with
+        | None -> Response.create `Unauthorized
+        | Some email -> Api.Task.update_task email task pool)
+     | _ -> Response.create `Not_found)
   | _ -> Response.create `Method_not_allowed
 ;;
 

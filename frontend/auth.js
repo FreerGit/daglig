@@ -39,10 +39,20 @@ const authOptions = {
         }
       );
 
-      return response.ok;
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        user.id = data.id;
+        return true;
+      }
+
+      return false;
     },
-    async jwt({ token, account }) {
+    async jwt({ token, user, account }) {
       console.log("jwt callback");
+      if (user) {
+        token.id = user.id;
+      }
       if (account) {
         token.accessToken = account.access_token;
         token.provider = account.provider;
@@ -51,6 +61,7 @@ const authOptions = {
     },
     async session({ session, token }) {
       console.log("session callback");
+      session.id = token.id;
       session.accessToken = token.accessToken;
       session.provider = token.provider;
       return session;

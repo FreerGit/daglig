@@ -20,7 +20,7 @@ export async function GET(request, { params }) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "X-User-Email": token.email,
+        "X-User-ID": token.id,
       },
     });
 
@@ -62,7 +62,7 @@ export async function POST(request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-User-Email": token.email,
+        "X-User-ID": token.id,
       },
       body: JSON.stringify(body),
     });

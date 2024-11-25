@@ -24,27 +24,29 @@ let connection_handler (params : Request_info.t Server.ctx) pool =
         | Error e ->
           Logs.err (fun m -> m "%s" (Caqti_error.show e));
           Response.create `Internal_server_error
-        | Ok _ -> Response.create `OK)
+        | Ok r -> r)
      | "/api/proxy/add-task" ->
        let json = get_body_string body in
-       let email = Headers.get headers "X-User-Email" in
-       print_endline json;
+       let user_id =
+         Headers.get headers "X-User-ID" |> Option.bind ~f:Int.of_string_opt
+       in
        let task = Database.Task.t_of_yojson (Yojson.Safe.from_string json) in
-       print_s ([%sexp_of: string option] email);
-       (match email with
+       (match user_id with
         | None -> Response.create `Unauthorized
-        | Some email ->
+        | Some user_id ->
           Logs.info (fun m -> m "%s" json);
-          Api.Task.add_task email task pool)
+          Api.Task.add_task user_id task pool)
      | _ -> Response.create `Not_found)
   | { Request.meth = `GET; target; headers; _ } ->
     let path = Uri.of_string target |> Uri.path in
     (match path with
      | "/get-tasks" ->
-       let email = Headers.get headers "X-User-Email" in
-       (match email with
+       let user_id =
+         Headers.get headers "X-User-ID" |> Option.bind ~f:Int.of_string_opt
+       in
+       (match user_id with
         | None -> Response.create `Unauthorized
-        | Some email -> Api.Task.get_tasks email pool)
+        | Some user_id -> Api.Task.get_tasks user_id pool)
      | "/abc" -> Response.create `OK
      | _ -> Response.create `Not_found)
   | { Request.meth = `PUT; target; body; headers; _ } ->
@@ -52,11 +54,13 @@ let connection_handler (params : Request_info.t Server.ctx) pool =
     (match path with
      | "/update-task" ->
        let json = get_body_string body in
-       let email = Headers.get headers "X-User-Email" in
+       let user_id =
+         Headers.get headers "X-User-ID" |> Option.bind ~f:Int.of_string_opt
+       in
        let task = Database.Task.t_of_yojson (Yojson.Safe.from_string json) in
-       (match email with
+       (match user_id with
         | None -> Response.create `Unauthorized
-        | Some email -> Api.Task.update_task email task pool)
+        | Some user_id -> Api.Task.update_task user_id task pool)
      | _ -> Response.create `Not_found)
   | _ -> Response.create `Method_not_allowed
 ;;

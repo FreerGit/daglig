@@ -1,5 +1,6 @@
 open! Core
 open Ppx_yojson_conv_lib.Yojson_conv
+open Piaf
 
 type t =
   { user_id : int option [@yojson.option]
@@ -35,7 +36,8 @@ let signup t pool =
         pool
         ~f:(Oauth_account.insert_or_update_oauth_account entry)
     in
-    return user_id
+    let json = `Assoc [ "id", `Int user_id ] |> Yojson.Safe.to_string in
+    return (Response.of_string ~body:json `OK)
   | None ->
     let new_user : User.t =
       { email = t.email
@@ -50,5 +52,6 @@ let signup t pool =
       Connection.run_with_pool pool ~f:(fun conn ->
         Oauth_account.insert_or_update_oauth_account entry conn)
     in
-    return user_id
+    let json = `Assoc [ "id", `Int user_id ] |> Yojson.Safe.to_string in
+    return (Response.of_string ~body:json `OK)
 ;;

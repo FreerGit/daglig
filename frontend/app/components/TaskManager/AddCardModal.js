@@ -10,6 +10,7 @@ const AddCardForm = ({ addCard, onClose }) => {
       description: "",
       recurrence_type: "",
       points: 1,
+      task_id: 0, // placeholder
     },
 
     validate: {
@@ -23,6 +24,7 @@ const AddCardForm = ({ addCard, onClose }) => {
         !value ? "Please select daily or weekly" : null,
       points: (value) =>
         value < 1 || value > 10 ? "Points must be between 1 and 10" : null,
+      task_id: (_) => null,
     },
   });
 

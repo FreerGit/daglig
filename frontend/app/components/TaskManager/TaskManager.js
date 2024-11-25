@@ -45,14 +45,14 @@ export const TaskManager = ({ initialCards }) => {
         </Button>
       </div>
       <div className="overflow-hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-[5%] md:mx-[10%] lg:mx-[15%] ">
-        {cards.map((card, index) => (
+        {cards.map((card) => (
           <div
-            key={index}
+            key={card.task_id}
             className={`border p-4 rounded m-2 cursor-pointer flex-1 ${
               isRemoving ? (selectedCards.has(card.id) ? "bg-red-200" : "") : ""
             } ${isRemoving ? `${styles.card}` : ""}`}
             style={{
-              animationDelay: `${-0.1 + index * -0.05}s`, // Adjust delay based on index
+              animationDelay: `${-0.1 + card.task_id * -0.05}s`, // Adjust delay based on index
               animationDuration: "0.3s", // Fixed duration
             }}
             onClick={() => isRemoving && toggleCardSelectionkat(card.id)}

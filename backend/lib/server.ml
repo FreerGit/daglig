@@ -15,7 +15,7 @@ let connection_handler (params : Request_info.t Server.ctx) pool =
     let path = Uri.of_string target |> Uri.path in
     print_endline path;
     (match path with
-     | "/api/proxy/signup" ->
+     | "/signup" ->
        let json = get_body_string body in
        Logs.info (fun m -> m "%s" json);
        let oauth_user = Api.Signup.t_of_yojson (Yojson.Safe.from_string json) in
@@ -25,7 +25,7 @@ let connection_handler (params : Request_info.t Server.ctx) pool =
           Logs.err (fun m -> m "%s" (Caqti_error.show e));
           Response.create `Internal_server_error
         | Ok r -> r)
-     | "/api/proxy/add-task" ->
+     | "/add-task" ->
        let json = get_body_string body in
        let user_id =
          Headers.get headers "X-User-ID" |> Option.bind ~f:Int.of_string_opt

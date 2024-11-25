@@ -5,8 +5,8 @@ const secret = process.env.NEXTAUTH_SECRET;
 
 export async function GET(request, { params }) {
   const { path } = await params;
-  const serverUrl = `${process.env.SERVER_URL}/${path.join("/")}`;
-  console.log("serverUrl", serverUrl);
+  const serverUrl = `${process.env.SERVER_URL}/${path}`;
+
   const token = await getToken({ req: request, secret });
   if (!token) {
     return NextResponse.json(
@@ -43,10 +43,11 @@ export async function GET(request, { params }) {
   }
 }
 
-export async function POST(request) {
-  const url = new URL(request.url);
-  const path = url.pathname;
-  const serverUrl = `${process.env.SERVER_URL}${path}`;
+export async function POST(request, { params }) {
+  const { path } = await params;
+  const serverUrl = `${process.env.SERVER_URL}/${path}`;
+
+  console.log(serverUrl);
 
   const token = await getToken({ req: request, secret });
   const body = await request.json();

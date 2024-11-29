@@ -3,9 +3,15 @@ import { NextResponse } from "next/server";
 
 const secret = process.env.NEXTAUTH_SECRET;
 
-export async function GET(request, { params }) {
+export async function handler(request, { params, query }) {
   const { path } = await params;
-  const serverUrl = `${process.env.SERVER_URL}/${path}`;
+  const url = new URL(request.url);
+  const queryString = url.search;
+
+  const serverUrl = `${process.env.SERVER_URL}/${path}${queryString}`;
+  const method = request.method;
+
+  console.log(`${method} serverUrl:`, serverUrl);
 
   const token = await getToken({ req: request, secret });
   if (!token) {
@@ -16,26 +22,32 @@ export async function GET(request, { params }) {
   }
 
   try {
+    const headers = {
+      "Content-Type": "application/json",
+      "X-User-ID": token.id,
+    };
+
+    let body;
+    if (method === "POST") {
+      body = await request.json();
+    }
+
     const response = await fetch(serverUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "X-User-ID": token.id,
-      },
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
     });
 
-    if (response.status === 200) {
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        console.log("JSON");
-        const data = await response.json();
-        return NextResponse.json(data, { status: response.status });
-      }
+    const contentType = response.headers.get("content-type");
+
+    if (response.status === 200 && contentType?.includes("application/json")) {
+      const data = await response.json();
+      return NextResponse.json(data, { status: response.status });
     }
 
     return new NextResponse(null, { status: response.status });
   } catch (error) {
-    console.error("Error forwarding GET request:", error);
+    console.error(`Error forwarding ${method} request:`, error);
     return NextResponse.json(
       { error: "Error proxying request" },
       { status: 500 }
@@ -43,39 +55,6 @@ export async function GET(request, { params }) {
   }
 }
 
-export async function POST(request, { params }) {
-  const { path } = await params;
-  const serverUrl = `${process.env.SERVER_URL}/${path}`;
-
-  console.log(serverUrl);
-
-  const token = await getToken({ req: request, secret });
-  const body = await request.json();
-  if (!token) {
-    return NextResponse.json(
-      { error: "Session token missing or invalid" },
-      { status: 401 }
-    );
-  }
-
-  try {
-    const response = await fetch(serverUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-User-ID": token.id,
-      },
-      body: JSON.stringify(body),
-    });
-
-    // const data = await response.json();
-    console.log(response.status);
-    return new NextResponse(null, { status: response.status });
-  } catch (error) {
-    console.error("Error forwarding POST request:", error);
-    return NextResponse.json(
-      { error: "Error proxying request" },
-      { status: 500 }
-    );
-  }
-}
+export const GET = handler;
+export const POST = handler;
+export const DELETE = handler;

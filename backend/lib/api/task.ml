@@ -45,3 +45,12 @@ let update_task user_id (task : Database.Task.t) pool =
     Response.create `Unauthorized
   | Ok () -> Response.create `OK
 ;;
+
+let remove_task user_id task_id pool =
+  let f = Database.Task.remove_task_query ~user_id ~task_id in
+  match Database.Connection.run_with_pool pool ~f with
+  | Error e ->
+    Logs.info (fun m -> m "%s %s" [%here].pos_fname (Caqti_error.show e));
+    Response.create `Unauthorized
+  | Ok () -> Response.create `OK
+;;

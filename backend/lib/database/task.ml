@@ -42,3 +42,13 @@ let update_task_query =
           AND user_id = %int{user_id}
       |sql}]
 ;;
+
+let remove_task_query =
+  [%rapper
+    execute
+      {sql|
+          DELETE FROM tasks
+          WHERE task_id = %int{task_id}
+          AND user_id = %int{user_id}
+      |sql}]
+;;

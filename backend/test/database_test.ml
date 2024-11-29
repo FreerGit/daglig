@@ -37,15 +37,38 @@ let run_test ~stdenv ~uri f =
           raise e))
 ;;
 
+let sample_user () : Lib.DB.User.t =
+  { email = "email.."
+  ; username = "name.."
+  ; image = None
+  ; timezone = Time_float_unix.Zone.utc
+  }
+;;
+
+let sample_tasks () : Lib.DB.Task.t list =
+  [ { description = "ABC"; points = 10; recurrence_type = Daily; task_id = 0 }
+  ; { description = "DEF"; points = 20; recurrence_type = Weekly; task_id = 0 }
+  ; { description = "GHI"; points = 30; recurrence_type = Daily; task_id = 0 }
+  ]
+;;
+
+let add_multiple_tasks (tasks : Lib.DB.Task.t list) id conn =
+  Eio.Fiber.all
+    (List.map
+       ~f:(fun task () ->
+         ignore
+           (Lib.DB.Task.insert_task_query
+              ~user_id:id
+              ~description:task.description
+              ~points:task.points
+              ~recurrence_type:task.recurrence_type
+              conn))
+       tasks)
+;;
+
 let run_insert_user_test =
   let open Lib.DB in
-  let user : Lib.DB.User.t =
-    { email = "email.."
-    ; username = "name.."
-    ; image = None
-    ; timezone = Time_float_unix.Zone.utc
-    }
-  in
+  let user = sample_user () in
   (* Returns a function which composes multiple queries into a single transaction *)
   fun conn ->
     let ( let* ) = Result.Let_syntax.( >>= ) in
@@ -70,13 +93,32 @@ let run_insert_user_test =
 
 let run_insert_and_get_tasks =
   let open Lib.DB in
-  let user : Lib.DB.User.t =
-    { email = "email.."
-    ; username = "name.."
-    ; image = None
-    ; timezone = Time_float_unix.Zone.utc
-    }
-  in
+  let user = sample_user () in
+  fun conn ->
+    let ( let* ) = Result.Let_syntax.( >>= ) in
+    let* _ = Migration.run_migrations conn in
+    let* v = User.insert_user user conn in
+    let* id = User.get_user_id_by_email ~email:user.email conn in
+    Option.value_exn ~here:[%here] id
+    |> fun user_id ->
+    assert (user_id = v);
+    let* empty_tasks = Task.get_users_tasks ~user_id conn in
+    assert (List.is_empty empty_tasks);
+    let tasks = sample_tasks () in
+    add_multiple_tasks tasks user_id conn;
+    let* ts = Task.get_users_tasks ~user_id conn in
+    assert (List.length ts = 3);
+    List.iter
+      ~f:(fun t -> ignore (Task.remove_task_query ~task_id:t.task_id ~user_id conn))
+      tasks;
+    let* ts = Task.get_users_tasks ~user_id conn in
+    assert (List.length ts = 3);
+    Ok ()
+;;
+
+let run_delete_tasks =
+  let open Lib.DB in
+  let user = sample_user () in
   fun conn ->
     let ( let* ) = Result.Let_syntax.( >>= ) in
     let* _ = Migration.run_migrations conn in
@@ -87,23 +129,8 @@ let run_insert_and_get_tasks =
     assert (id = v);
     let* empty_tasks = Task.get_users_tasks ~user_id:id conn in
     assert (List.is_empty empty_tasks);
-    let tasks : Task.t list =
-      [ { description = "ABC"; points = 10; recurrence_type = Types.Recurrence.Daily }
-      ; { description = "DEF"; points = 20; recurrence_type = Types.Recurrence.Weekly }
-      ; { description = "GHI"; points = 30; recurrence_type = Types.Recurrence.Daily }
-      ]
-    in
-    Eio.Fiber.all
-      (List.map
-         ~f:(fun task () ->
-           ignore
-             (Task.insert_task_query
-                ~user_id:id
-                ~description:task.description
-                ~points:task.points
-                ~recurrence_type:task.recurrence_type
-                conn))
-         tasks);
+    let tasks = sample_tasks () in
+    add_multiple_tasks tasks id conn;
     let* ts = Task.get_users_tasks ~user_id:id conn in
     assert (List.length ts = 3);
     Ok ()
@@ -114,7 +141,11 @@ let run_insert_and_get_tasks =
 (* Main test runner *)
 let run_all_tests ~stdenv ~uri =
   let tests =
-    [ Lib.DB.Migration.run_migrations; run_insert_user_test; run_insert_and_get_tasks ]
+    [ Lib.DB.Migration.run_migrations
+    ; run_insert_user_test
+    ; run_insert_and_get_tasks
+    ; run_delete_tasks
+    ]
   in
   let results = List.map ~f:(run_test ~stdenv ~uri) tests in
   let total = List.length results in

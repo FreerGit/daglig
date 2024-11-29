@@ -30,14 +30,11 @@ const authOptions = {
         expires_at: account.expires_at,
       };
 
-      const response = await fetch(
-        `${process.env.SERVER_URL}/api/proxy/signup`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(oauth),
-        }
-      );
+      const response = await fetch(`${process.env.SERVER_URL}/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(oauth),
+      });
 
       if (response.ok) {
         const data = await response.json();

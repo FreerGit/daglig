@@ -62,6 +62,21 @@ let connection_handler (params : Request_info.t Server.ctx) pool =
         | None -> Response.create `Unauthorized
         | Some user_id -> Api.Task.update_task user_id task pool)
      | _ -> Response.create `Not_found)
+  | { Request.meth = `DELETE; target; headers; _ } ->
+    let uri = Uri.of_string target in
+    (match Uri.path uri with
+     | "/remove-task" ->
+       let id_s = Uri.get_query_param uri "id" in
+       let user_id =
+         Headers.get headers "X-User-ID" |> Option.bind ~f:Int.of_string_opt
+       in
+       (match user_id with
+        | None -> Response.create `Unauthorized
+        | Some user_id ->
+          (match id_s with
+           | None -> Response.create `Bad_request
+           | Some id -> Api.Task.remove_task user_id (int_of_string id) pool))
+     | _ -> Response.create `Not_found)
   | _ -> Response.create `Method_not_allowed
 ;;
 

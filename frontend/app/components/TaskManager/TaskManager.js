@@ -4,19 +4,13 @@ import React, { useState } from "react";
 import { Button, Modal, TextInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { AddCardModal } from "./AddCardModal";
-
-import styles from "../../styles/CardManager.module.css";
+import { AiOutlineDelete } from "react-icons/ai";
+import { GrCheckmark } from "react-icons/gr";
+import { CiEdit } from "react-icons/ci";
 
 export const TaskManager = ({ initialCards }) => {
   const [cards, setCards] = useState(initialCards);
-  const [isRemoving, setIsRemoving] = useState(false);
   const [addModalOpened, addModalHandlers] = useDisclosure(false);
-
-  const [hoveredCard, setHoveredCard] = useState(null);
-
-  const toggleRemoveMode = () => {
-    setIsRemoving((prev) => !prev);
-  };
 
   const getCards = async () => {
     const response = await fetch("api/proxy/get-tasks");
@@ -45,12 +39,8 @@ export const TaskManager = ({ initialCards }) => {
       if (!response.ok) {
         throw new Error("Failed to remove task");
       } else {
-        const response = await fetch("/api/proxy/get-tasks", {
-          method: "GET",
-        });
-
         if (response.ok) {
-          setCards(await response.json());
+          setCards(await getCards());
           console.log(cards);
         }
       }
@@ -71,14 +61,8 @@ export const TaskManager = ({ initialCards }) => {
         className="flex justify-around mx-[15%] sm:mx-[20%]
        md:mx-[25%] lg:mx-[30%] xl:mx-[40%] mb-4"
       >
-        <Button variant="default" onClick={toggleRemoveMode}>
-          {isRemoving ? "Cancel" : "Remove"}
-        </Button>
-        <Button variant="default" onClick={() => setEditModalOpen(true)}>
-          Update
-        </Button>
         <Button variant="default" onClick={addModalHandlers.open}>
-          Add
+          Add Task
         </Button>
       </div>
 
@@ -86,28 +70,23 @@ export const TaskManager = ({ initialCards }) => {
         {cards.map((card) => (
           <div
             key={card.task_id}
-            className={`border p-4 rounded m-2 cursor-pointer flex-1 ${
-              hoveredCard === card.task_id ? "bg-red-200" : ""
-            } ${isRemoving ? `${styles.card}` : ""}`}
-            style={{
-              animationDelay: `${-0.1 + card.task_id * -0.05}s`, // Adjust delay based on index
-              animationDuration: "0.3s", // Fixed duration
-            }}
-            onMouseEnter={() => isRemoving && setHoveredCard(card.task_id)}
-            onMouseLeave={() => isRemoving && setHoveredCard(null)}
-            onClick={() => handleRemoveCard(card.task_id)}
+            className={"border p-4 rounded m-2 cursor-pointer flex-1"}
           >
             <div className="w-full">
               <h3 className="font-semibold">{card.description}</h3>
               <div className="flex justify-between items-center">
                 <p>Points: {card.points}</p>
-                {isRemoving ? (
-                  <></>
-                ) : (
-                  <Button variant="subtle" color="green">
-                    ✔
+                <div>
+                  <Button variant="subtle" color="red" size="compact-md">
+                    <AiOutlineDelete />
                   </Button>
-                )}
+                  <Button variant="subtle" color="black" size="compact-md">
+                    <CiEdit />
+                  </Button>
+                  <Button variant="subtle" color="black" size="compact-md">
+                    <GrCheckmark />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

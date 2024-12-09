@@ -18,8 +18,18 @@ export const TaskManager = ({ initialCards }) => {
     setIsRemoving((prev) => !prev);
   };
 
-  const addCard = (card) => {
-    setCards([...cards, card]);
+  const getCards = async () => {
+    const response = await fetch("api/proxy/get-tasks");
+    if (response.ok) {
+      const cards = await response.json();
+      return cards;
+    }
+    return [];
+  };
+
+  const addCard = async () => {
+    const cards = await getCards();
+    setCards(cards);
   };
 
   const handleRemoveCard = async (task_id) => {

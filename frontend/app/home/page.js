@@ -15,18 +15,25 @@ export default async function LoginPage() {
   }
 
   const sessionCookies = await cookies();
-  const response = await fetch(`${process.env.NEXT_URL}/api/proxy/get-tasks`, {
-    headers: {
-      Cookie: sessionCookies.toString(),
-    },
-    credentials: "include",
-  });
 
-  let cards = [];
-  if (response.ok) {
-    cards = await response.json();
-    console.log(cards);
-  }
+  const getCards = async () => {
+    const response = await fetch(
+      `${process.env.NEXT_URL}/api/proxy/get-tasks`,
+      {
+        headers: {
+          Cookie: sessionCookies.toString(),
+        },
+        credentials: "include",
+      }
+    );
+    if (response.ok) {
+      const cards = await response.json();
+      return cards;
+    }
+    return [];
+  };
+
+  let cards = await getCards();
 
   return (
     <div className="flex flex-col items-center mt-4 h-screen w-screen">
